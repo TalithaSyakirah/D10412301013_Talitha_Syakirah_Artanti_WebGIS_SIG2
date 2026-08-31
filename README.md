@@ -93,38 +93,12 @@ ditampilkan di Leaflet.
 - `Genangann_3.5m_Pontianak.shp`
 - `Genangann_4m_Pontianak.shp`
 
-Nama di `config.js` sudah dibuat sama persis dengan nama file di folder data.
 
 ## Luas Genangan
 
 Nilai luas yang ditampilkan pada legenda/statistik dihitung dari geometri
 Shapefile yang diberikan, menggunakan WGS84/geodesic area, lalu ditampilkan
-dalam km².
-
-## Menjalankan
-
-1. Extract ZIP.
-2. Buka folder `Tugas_1_Webgis_Revisi` di VS Code.
-3. Jalankan `index.html` dengan **Live Server**.
-4. Buka melalui Chrome.
-
-Jangan membuka `index.html` dengan `file://` karena browser dapat memblokir
-`fetch()` file `.shp`.
+dalam km². 
 
 
-## Update UI/UX Putih-Biru
 
-Versi ini mempertahankan seluruh data dan fitur dari revisi sebelumnya,
-namun UI/UX diubah menjadi gaya modern putih-biru.
-
-Perubahan:
-- Sidebar putih dengan aksen biru.
-- Toolbar peta putih.
-- Legenda putih.
-- Tombol simulasi biru modern.
-- Kartu "Simulasi Aktif" ditambahkan di sidebar.
-- Kartu aktif berubah otomatis berdasarkan layer genangan yang sedang tampil.
-- Latitude, Longitude, dan level Zoom dipindahkan ke toolbar atas di samping Basemap.
-- Coordinate bar bawah dihapus.
-- Seluruh fungsi Shapefile, simulasi, layer pendukung, transparansi,
-  tampil/sembunyikan semua, statistik luas, dan default Singkawang tetap dipertahankan.
