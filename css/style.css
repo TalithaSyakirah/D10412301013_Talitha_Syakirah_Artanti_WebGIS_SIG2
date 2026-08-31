@@ -1383,3 +1383,19 @@ input[type="range"] {
     font-size: 30px;
   }
 }
+
+.author-name {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.author-name small {
+  display: block;
+  margin-top: 1px;
+  color: #94a3b8;
+  font-size: 9px;
+  font-weight: 500;
+}
