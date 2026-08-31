@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta
+    name="description"
+    content="Smart City WebGIS simulasi genangan banjir Kota Pontianak dan Kota Singkawang."
+  >
+
+  <title>Smart City · WebGIS Genangan Banjir</title>
+
+  <!-- Leaflet yang sama dengan pola project UAS SIG -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  >
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <div class="app">
+    <!-- ==========================================================
+         SIDEBAR
+         ========================================================== -->
+    <aside class="sidebar">
+      <header class="brand">
+        <div class="brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 3.2C9.1 7.2 6 10.6 6 14.2a6 6 0 1 0 12 0c0-3.6-3.1-7-6-11Z"
+                  stroke="currentColor" stroke-width="1.8"/>
+            <path d="M9.3 15.1c.6 1.4 1.7 2.1 3.4 2.1"
+                  stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <div class="brand-copy">
+          <span>SMART CITY</span>
+          <h1>WebGIS Genangan Banjir</h1>
+        </div>
+      </header>
+
+      <p class="brand-description">
+        Visualisasi skenario kenaikan muka air dan potensi genangan
+        berbasis data Shapefile.
+      </p>
+
+      <div class="sidebar-scroll">
+        <!-- DAERAH -->
+        <section class="side-section">
+          <div class="section-title">
+            <span class="section-icon">⌖</span>
+            <div>
+              <small>WILAYAH ANALISIS</small>
+              <h2>Pilih Daerah</h2>
+            </div>
+          </div>
+
+          <div class="select-wrap">
+            <select id="regionSelect" aria-label="Pilih daerah"></select>
+            <span class="select-arrow" aria-hidden="true">⌄</span>
+          </div>
+        </section>
+
+        <!-- GENANGAN -->
+        <section class="side-section">
+          <div class="section-title">
+            <span class="section-icon">≋</span>
+            <div>
+              <small>LAYER UTAMA</small>
+              <h2>Genangan Banjir</h2>
+            </div>
+          </div>
+
+          <div id="floodLayerControls" class="layer-list"></div>
+
+          <label class="range-label" for="opacityRange">
+            <span>Transparansi Layer</span>
+            <strong id="opacityValue">48%</strong>
+          </label>
+
+          <input
+            id="opacityRange"
+            class="opacity-range"
+            type="range"
+            min="15"
+            max="85"
+            value="48"
+            step="1"
+          >
+
+          <button id="simulationButton" class="simulation-button" type="button">
+            <span id="simulationIcon">▶</span>
+            <span id="simulationText">SIMULASI KENAIKAN AIR</span>
+          </button>
+
+          <div class="dual-actions">
+            <button id="showAllButton" type="button">TAMPILKAN<br>SEMUA</button>
+            <button id="hideAllButton" type="button">SEMBUNYIKAN<br>SEMUA</button>
+          </div>
+
+          <section class="active-scenario-card" aria-live="polite">
+            <div class="active-scenario-top">
+              <div>
+                <span class="active-scenario-label">SIMULASI AKTIF</span>
+                <h3 id="activeScenarioRegion">Singkawang</h3>
+              </div>
+
+              <span class="active-scenario-dot" aria-hidden="true"></span>
+            </div>
+
+            <div class="active-scenario-value">
+              <strong id="activeScenarioValue">1,0–4,0</strong>
+              <span>meter</span>
+            </div>
+
+            <div class="active-scenario-meta">
+              <div>
+                <small>Layer</small>
+                <strong id="activeScenarioLayer">7 layer genangan</strong>
+              </div>
+
+              <div>
+                <small>Status</small>
+                <strong id="activeScenarioStatus">Aktif</strong>
+              </div>
+            </div>
+          </section>
+
+          <p class="stack-note">
+            Urutan tumpukan: 4,0 m berada paling bawah, kemudian 3,5 m hingga
+            1,0 m berada paling atas.
+          </p>
+        </section>
+
+        <!-- LAYER PENDUKUNG -->
+        <section class="side-section">
+          <div class="section-title cyan">
+            <span class="section-icon">☰</span>
+            <div>
+              <small>DATA WILAYAH</small>
+              <h2>Layer Pendukung</h2>
+            </div>
+          </div>
+
+          <div id="supportLayerControls" class="support-list"></div>
+        </section>
+      </div>
+
+      <footer class="sidebar-footer">
+        <span class="footer-dot"></span>
+        <span id="sidebarRegionFooter">Singkawang · Kalimantan Barat</span>
+      </footer>
+    </aside>
+
+    <!-- ==========================================================
+         MAP
+         ========================================================== -->
+    <main class="map-shell">
+      <div id="map"></div>
+
+      <header class="map-toolbar">
+        <div>
+          <span class="toolbar-kicker">SMART CITY · SIMULASI GENANGAN</span>
+          <div class="toolbar-title">
+            <strong id="mapRegionName">Singkawang</strong>
+            <span>•</span>
+            <span id="mapLayerStatus">7 layer aktif</span>
+          </div>
+        </div>
+
+        <div class="toolbar-actions">
+          <label class="basemap-control">
+            <span>Basemap</span>
+            <select id="basemapSelect">
+              <option value="osm">OpenStreetMap</option>
+              <option value="hot">OSM Humanitarian</option>
+            </select>
+          </label>
+
+          <div class="coordinate-top" aria-live="polite">
+            <span class="coord-top-icon" aria-hidden="true">⌖</span>
+
+            <span class="coord-top-group">
+              <small>LAT</small>
+              <strong id="cursorLat">0.906000</strong>
+            </span>
+
+            <span class="coord-top-divider"></span>
+
+            <span class="coord-top-group">
+              <small>LNG</small>
+              <strong id="cursorLng">108.987200</strong>
+            </span>
+
+            <span id="zoomBadge" class="zoom-badge">Z11</span>
+          </div>
+
+          <button id="focusButton" type="button">⌖ Fokus Wilayah</button>
+        </div>
+      </header>
+
+      <!-- LEGENDA + STATISTIK -->
+      <aside id="legendPanel" class="legend-panel">
+        <div class="legend-panel-head">
+          <div class="legend-heading">
+            <span class="mini-chart" aria-hidden="true">▥</span>
+            <h2>Legenda</h2>
+          </div>
+
+          <button
+            id="legendToggle"
+            class="legend-toggle"
+            type="button"
+            aria-expanded="true"
+            aria-label="Tutup atau buka legenda"
+          >
+           ⌄
+          </button>
+        </div>
+
+        <div id="legendContent" class="legend-content">
+          <div class="gradient-bar"></div>
+
+          <div class="gradient-labels">
+            <span>1,0 m</span>
+            <span>4,0 m</span>
+          </div>
+
+          <div id="floodLegendRows" class="legend-rows"></div>
+
+          <div class="legend-separator"></div>
+
+          <div id="supportLegendRows" class="support-legend"></div>
+
+          <div class="legend-separator"></div>
+
+          <section class="stats-section">
+            <div class="stats-title">
+              <span>⌁</span>
+              <h3>Statistik Luas Genangan</h3>
+            </div>
+
+            <div id="areaStats" class="area-stats"></div>
+          </section>
+        </div>
+      </aside>
+
+      <!-- LOADING -->
+      <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-card">
+          <span class="spinner"></span>
+
+          <div>
+            <strong id="loadingTitle">Memuat layer</strong>
+            <small id="loadingDetail">Mohon tunggu...</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- TOAST -->
+      <div id="toast" class="toast hidden" role="status">
+        <strong id="toastTitle">Informasi</strong>
+        <span id="toastMessage"></span>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Parser SHP lokal: tidak perlu GeoJSON / database -->
+  <script src="js/shp-reader.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
